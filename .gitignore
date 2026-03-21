@@ -1,0 +1,36 @@
+node_modules
+dist
+
+# Screenshots from dev/testing
+*.png
+
+# Playwright CLI
+.playwright-cli
+
+# Editor
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+.env.*
+
+# Logs
+*.log
+npm-debug.log*
+
+# Cached API snapshot (dev only)
+src/data/bracket-snapshot.json
+
+# Claude Code
+.claude
+
+# Vite scaffold leftover
+public/icons.svg
