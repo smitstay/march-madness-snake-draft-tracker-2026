@@ -2,9 +2,11 @@ import type { BracketData, BracketGame, BracketTeam, BracketRegion, BracketRound
 
 const BRACKET_PATH = '/brackets/basketball-men/d1/2026';
 
-// Both dev (Vite proxy) and prod (nginx proxy) use /api/ncaa/ prefix
 function getBracketUrl(): string {
-  return `/api/ncaa${BRACKET_PATH}`;
+  if (import.meta.env.DEV) {
+    return `/api/ncaa${BRACKET_PATH}`;
+  }
+  return `https://ncaa.taytech.io/api/ncaa${BRACKET_PATH}`;
 }
 const CACHE_KEY = 'ncaa_bracket_data';
 const CACHE_TS_KEY = 'ncaa_bracket_ts';
