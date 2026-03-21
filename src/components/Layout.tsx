@@ -29,8 +29,12 @@ function formatTimeAgo(date: Date): string {
 function TimeAgo({ date }: { date: Date }) {
   const [, setTick] = useState(0);
   useEffect(() => {
-    const id = setInterval(() => setTick(t => t + 1), 5000);
-    return () => clearInterval(id);
+    const bump = () => setTick(t => t + 1);
+    const id = setInterval(bump, 5000);
+    // Also update immediately when user returns to the tab
+    const onVisible = () => { if (document.visibilityState === 'visible') bump(); };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => { clearInterval(id); document.removeEventListener('visibilitychange', onVisible); };
   }, []);
   return <>Updated {formatTimeAgo(date)}</>;
 }
