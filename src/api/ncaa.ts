@@ -2,15 +2,9 @@ import type { BracketData, BracketGame, BracketTeam, BracketRegion, BracketRound
 
 const BRACKET_PATH = '/brackets/basketball-men/d1/2026';
 
-// In dev, use Vite proxy to avoid CORS. In prod, use corsproxy.io as fallback.
-function getBracketUrls(): string[] {
-  const isDev = import.meta.env.DEV;
-  if (isDev) {
-    return [`/api/ncaa${BRACKET_PATH}`];
-  }
-  return [
-    `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://ncaa-api.henrygd.me${BRACKET_PATH}`)}`,
-  ];
+// Both dev (Vite proxy) and prod (nginx proxy) use /api/ncaa/ prefix
+function getBracketUrl(): string {
+  return `/api/ncaa${BRACKET_PATH}`;
 }
 const CACHE_KEY = 'ncaa_bracket_data';
 const CACHE_TS_KEY = 'ncaa_bracket_ts';
@@ -66,38 +60,21 @@ function normalizeRound(raw: any): BracketRound {
 }
 
 export async function fetchBracketData(): Promise<BracketData> {
-  const urls = getBracketUrls();
-  let lastError: Error | null = null;
+  const url = getBracketUrl();
+  const res = await fetch(url, {
+    headers: { 'Accept': '*/*' },
+    signal: AbortSignal.timeout(10000),
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const data = await res.json();
+  const champ = data?.championships?.[0];
+  if (!champ) throw new Error('No championship data');
 
-  for (const url of urls) {
-    try {
-      const res = await fetch(url, {
-        headers: { 'Accept': '*/*' },
-        signal: AbortSignal.timeout(10000),
-      });
-      if (!res.ok) {
-        lastError = new Error(`HTTP ${res.status}`);
-        continue;
-      }
-      const data = await res.json();
-      const champ = data?.championships?.[0];
-      if (!champ) {
-        lastError = new Error('No championship data');
-        continue;
-      }
-
-      return {
-        games: (champ.games || []).map(normalizeGame),
-        regions: (champ.regions || []).map(normalizeRegion),
-        rounds: (champ.rounds || []).map(normalizeRound),
-      };
-    } catch (err) {
-      lastError = err instanceof Error ? err : new Error('Fetch failed');
-      continue;
-    }
-  }
-
-  throw lastError || new Error('All fetch attempts failed');
+  return {
+    games: (champ.games || []).map(normalizeGame),
+    regions: (champ.regions || []).map(normalizeRegion),
+    rounds: (champ.rounds || []).map(normalizeRound),
+  };
 }
 
 export function getCachedBracket(): BracketData | null {

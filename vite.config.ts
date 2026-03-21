@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
-  base: '/march-madness-snake-draft-tracker-2026/',
+  base: '/',
   plugins: [react(), tailwindcss()],
   server: {
     proxy: {
