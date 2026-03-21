@@ -17,14 +17,13 @@ const POLL_IDLE = 300_000;    // 5min when no games
 
 export function useGameData(): GameDataState & { refresh: () => void } {
   const [state, setState] = useState<GameDataState>(() => {
-    // Try loading from cache on init
     const cached = getCachedBracket();
     if (cached) {
       const scores = sortScores(computeAllScores(cached));
       return {
         bracket: cached,
         scores,
-        loading: true, // still fetch fresh data
+        loading: true,
         error: null,
         lastUpdated: null,
         isLive: hasLiveGames(cached),
@@ -41,29 +40,23 @@ export function useGameData(): GameDataState & { refresh: () => void } {
   });
 
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const isLiveRef = useRef(false);
 
-  const processData = useCallback((data: BracketData) => {
-    const scores = sortScores(computeAllScores(data));
-    const isLive = hasLiveGames(data);
-    cacheBracket(data);
-    setState({
-      bracket: data,
-      scores,
-      loading: false,
-      error: null,
-      lastUpdated: new Date(),
-      isLive,
-    });
-    return isLive;
-  }, []);
-
-  const fetchData = useCallback(async () => {
+  const doFetch = useCallback(async () => {
     try {
       const data = await fetchBracketData();
-      const isLive = processData(data);
-      // Adjust poll interval
-      if (intervalRef.current) clearInterval(intervalRef.current);
-      intervalRef.current = setInterval(fetchData, isLive ? POLL_ACTIVE : POLL_IDLE);
+      const scores = sortScores(computeAllScores(data));
+      const isLive = hasLiveGames(data);
+      isLiveRef.current = isLive;
+      cacheBracket(data);
+      setState({
+        bracket: data,
+        scores,
+        loading: false,
+        error: null,
+        lastUpdated: new Date(),
+        isLive,
+      });
     } catch (err) {
       setState(prev => ({
         ...prev,
@@ -71,19 +64,47 @@ export function useGameData(): GameDataState & { refresh: () => void } {
         error: prev.bracket ? null : (err instanceof Error ? err.message : 'Failed to load'),
       }));
     }
-  }, [processData]);
+  }, []);
 
   const refresh = useCallback(() => {
     setState(prev => ({ ...prev, loading: true }));
-    fetchData();
-  }, [fetchData]);
+    doFetch();
+  }, [doFetch]);
 
+  // Single stable effect: fetch on mount, set up polling, re-fetch on tab focus
   useEffect(() => {
-    fetchData();
+    // Initial fetch
+    doFetch();
+
+    // Polling interval — checks isLiveRef to pick the right interval
+    function startPoll() {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      intervalRef.current = setInterval(() => {
+        doFetch();
+        // Re-adjust interval if live state changed
+        const currentInterval = isLiveRef.current ? POLL_ACTIVE : POLL_IDLE;
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+          intervalRef.current = setInterval(doFetch, currentInterval);
+        }
+      }, isLiveRef.current ? POLL_ACTIVE : POLL_IDLE);
+    }
+    startPoll();
+
+    // Re-fetch when user returns to the tab
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') {
+        doFetch();
+        startPoll(); // restart poll with fresh interval
+      }
+    };
+    document.addEventListener('visibilitychange', onVisible);
+
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
+      document.removeEventListener('visibilitychange', onVisible);
     };
-  }, [fetchData]);
+  }, [doFetch]);
 
   return { ...state, refresh };
 }
