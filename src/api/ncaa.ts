@@ -9,8 +9,7 @@ function getBracketUrls(): string[] {
     return [`/api/ncaa${BRACKET_PATH}`];
   }
   return [
-    `https://ncaa-api.henrygd.me${BRACKET_PATH}`,
-    `https://corsproxy.io/?url=${encodeURIComponent(`https://ncaa-api.henrygd.me${BRACKET_PATH}`)}`,
+    `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://ncaa-api.henrygd.me${BRACKET_PATH}`)}`,
   ];
 }
 const CACHE_KEY = 'ncaa_bracket_data';
