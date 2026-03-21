@@ -1,4 +1,4 @@
-import { type ReactNode } from 'react';
+import { type ReactNode, useState, useEffect } from 'react';
 import type { TabType } from '../types';
 import { LiveIndicator } from './LiveIndicator';
 
@@ -18,12 +18,21 @@ const tabs: { id: TabType; label: string; icon: string }[] = [
   { id: 'teams', label: 'Teams', icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z' },
 ];
 
-function timeAgo(date: Date): string {
+function formatTimeAgo(date: Date): string {
   const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
   if (seconds < 10) return 'just now';
   if (seconds < 60) return `${seconds}s ago`;
   if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
   return `${Math.floor(seconds / 3600)}h ago`;
+}
+
+function TimeAgo({ date }: { date: Date }) {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setTick(t => t + 1), 5000);
+    return () => clearInterval(id);
+  }, []);
+  return <>Updated {formatTimeAgo(date)}</>;
 }
 
 export function Layout({ children, activeTab, onTabChange, isLive, lastUpdated, onRefresh, loading }: LayoutProps) {
@@ -70,7 +79,7 @@ export function Layout({ children, activeTab, onTabChange, isLive, lastUpdated, 
             {isLive && <LiveIndicator />}
             {lastUpdated && (
               <span className="font-['DM_Sans'] text-[10px] text-white/30">
-                Updated {timeAgo(lastUpdated)}
+                <TimeAgo date={lastUpdated} />
               </span>
             )}
             <button
