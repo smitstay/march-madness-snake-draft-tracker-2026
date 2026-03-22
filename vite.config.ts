@@ -3,7 +3,8 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
-  base: '/march-madness-snake-draft-tracker-2026/',
+  // Relative base lets the same build work on both root domains and subpath hosting.
+  base: './',
   plugins: [react(), tailwindcss()],
   server: {
     proxy: {
