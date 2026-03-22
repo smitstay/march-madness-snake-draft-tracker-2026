@@ -1,12 +1,13 @@
 import type { BracketData, BracketGame, BracketTeam, BracketRegion, BracketRound } from '../types';
 
 const BRACKET_PATH = '/brackets/basketball-men/d1/2026';
+const PROD_PROXY_BASE = 'https://ncaa.taytech.io/api/ncaa';
 
 function getBracketUrl(): string {
   if (import.meta.env.DEV) {
     return `/api/ncaa${BRACKET_PATH}`;
   }
-  return `https://ncaa.taytech.io/api/ncaa${BRACKET_PATH}`;
+  return `${PROD_PROXY_BASE}${BRACKET_PATH}`;
 }
 const CACHE_KEY = 'ncaa_bracket_data';
 const CACHE_TS_KEY = 'ncaa_bracket_ts';
@@ -69,6 +70,7 @@ export async function fetchBracketData(): Promise<BracketData> {
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const data = await res.json();
+
   const champ = data?.championships?.[0];
   if (!champ) throw new Error('No championship data');
 
