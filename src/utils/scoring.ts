@@ -30,6 +30,8 @@ export function computeAllScores(data: BracketData): PlayerScore[] {
 
   for (const game of data.games) {
     if (game.teams.length < 2) continue;
+    // Skip First Four (play-in) games — only count the main 64-team bracket
+    if (game.sectionId === 1) continue;
     const [t0, t1] = game.teams;
     if (t0.seoname) ensureRecord(t0.seoname, t0.nameShort, t0.seed);
     if (t1.seoname) ensureRecord(t1.seoname, t1.nameShort, t1.seed);
@@ -67,9 +69,8 @@ export function computeAllScores(data: BracketData): PlayerScore[] {
 
       if (record) {
         points += record.wins;
-        // Max remaining wins: a team in the main bracket can win up to 6 games total
-        // First Four teams can win 7 total (1 play-in + 6 main)
-        const maxTotalWins = 7; // conservative max
+        // Max wins: 6 games in the main bracket (Round of 64 through Championship)
+        const maxTotalWins = 6;
         const remainingWins = record.eliminated ? 0 : Math.max(0, maxTotalWins - record.wins);
         maxPotential += record.wins + remainingWins;
         if (record.alive) teamsAlive++;
