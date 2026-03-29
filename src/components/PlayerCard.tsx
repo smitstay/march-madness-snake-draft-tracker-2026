@@ -12,7 +12,8 @@ interface PlayerCardProps {
 export function PlayerCard({ score, rank, leaderPoints, globalMax }: PlayerCardProps) {
   const [expanded, setExpanded] = useState(false);
   const { player, points, maxPotential, teamsAlive, teamsEliminated, teamResults } = score;
-  const isMathEliminated = maxPotential < leaderPoints;
+  const inPrizePosition = rank <= 3;
+  const isMathEliminated = !inPrizePosition && maxPotential < leaderPoints;
 
   const aliveTeams = teamResults.filter(t => t.alive).sort((a, b) => b.wins - a.wins);
   const eliminatedTeams = teamResults.filter(t => t.eliminated).sort((a, b) => b.wins - a.wins);
