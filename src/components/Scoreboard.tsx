@@ -7,6 +7,7 @@ interface ScoreboardProps {
 
 export function Scoreboard({ scores }: ScoreboardProps) {
   const leaderPoints = scores.length > 0 ? scores[0].points : 0;
+  const globalMax = scores.length > 0 ? Math.max(...scores.map(s => s.maxPotential)) : 48;
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-6">
@@ -15,7 +16,7 @@ export function Scoreboard({ scores }: ScoreboardProps) {
           Leaderboard
         </h2>
         <p className="mt-1 font-['DM_Sans'] text-sm text-white/40">
-          1 point per tournament win · Click to expand
+          1 point per tournament win · Top 3 pay out · Click to expand
         </p>
       </div>
 
@@ -26,7 +27,7 @@ export function Scoreboard({ scores }: ScoreboardProps) {
             className="animate-[fadeSlideIn_0.4s_ease-out_both]"
             style={{ animationDelay: `${i * 60}ms` }}
           >
-            <PlayerCard score={score} rank={i + 1} leaderPoints={leaderPoints} />
+            <PlayerCard score={score} rank={i + 1} leaderPoints={leaderPoints} globalMax={globalMax} />
           </div>
         ))}
       </div>

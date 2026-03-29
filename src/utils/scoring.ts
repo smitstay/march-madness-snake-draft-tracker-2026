@@ -1,4 +1,4 @@
-import type { PlayerScore, TeamResult, BracketData } from '../types';
+import type { PlayerScore, TeamResult, BracketData, BracketGame } from '../types';
 import { players } from '../data/picks';
 import { slugToTeam } from '../data/teamAliases';
 
@@ -9,6 +9,113 @@ interface TeamRecord {
   wins: number;
   eliminated: boolean;
   alive: boolean;
+}
+
+function getRound(bracketId: number): number {
+  if (bracketId >= 700) return 7;
+  if (bracketId >= 600) return 6;
+  if (bracketId >= 500) return 5;
+  if (bracketId >= 400) return 4;
+  if (bracketId >= 300) return 3;
+  if (bracketId >= 200) return 2;
+  return 1;
+}
+
+/**
+ * Build a bracket tree and map alive teams to their current positions.
+ * Uses victorBracketPositionId to link child games to parent games.
+ */
+function buildBracketTree(games: BracketGame[]) {
+  // children: parentBracketId -> child bracketIds (the two games whose winners feed in)
+  const children = new Map<number, number[]>();
+  const allIds = new Set<number>();
+  const hasParent = new Set<number>();
+
+  for (const game of games) {
+    if (game.sectionId === 1) continue; // skip First Four
+    allIds.add(game.bracketId);
+    if (!children.has(game.bracketId)) {
+      children.set(game.bracketId, []);
+    }
+
+    if (game.victorBracketPositionId) {
+      if (!children.has(game.victorBracketPositionId)) {
+        children.set(game.victorBracketPositionId, []);
+      }
+      children.get(game.victorBracketPositionId)!.push(game.bracketId);
+      hasParent.add(game.bracketId);
+    }
+  }
+
+  // Root = highest-round game with no parent (championship)
+  let root = 0;
+  for (const id of allIds) {
+    if (!hasParent.has(id) && getRound(id) >= getRound(root)) {
+      root = id;
+    }
+  }
+
+  // Map each team to its highest-round appearance (current bracket position)
+  const teamPositions = new Map<string, number>();
+  for (const game of games) {
+    if (game.sectionId === 1) continue;
+    for (const team of game.teams) {
+      if (!team.seoname) continue;
+      const curr = teamPositions.get(team.seoname);
+      if (!curr || getRound(game.bracketId) > getRound(curr) ||
+          (getRound(game.bracketId) === getRound(curr) && game.bracketId > curr)) {
+        teamPositions.set(team.seoname, game.bracketId);
+      }
+    }
+  }
+
+  return { children, root, teamPositions };
+}
+
+/**
+ * Bottom-up DP on the bracket tree to compute the maximum future wins
+ * a player can earn, accounting for bracket collisions (two of the player's
+ * teams can't both advance past a shared matchup).
+ *
+ * Returns { wins, canAdvance }:
+ * - wins: max future wins earnable by this player's teams at/below this game
+ * - canAdvance: whether a player's team can win this game and continue upward
+ */
+function computeMaxFutureWins(
+  gameId: number,
+  children: Map<number, number[]>,
+  playerPositions: Set<number>,
+): { wins: number; canAdvance: boolean } {
+  const childIds = children.get(gameId) || [];
+  const hasTeamHere = playerPositions.has(gameId);
+
+  if (childIds.length === 0) {
+    // Leaf node (Round of 64 game)
+    // If the player has a team here, it can win this game (+1) and advance
+    return hasTeamHere ? { wins: 1, canAdvance: true } : { wins: 0, canAdvance: false };
+  }
+
+  // Recurse into child (feeder) games
+  const results = childIds.map(cid => computeMaxFutureWins(cid, children, playerPositions));
+  const totalChildWins = results.reduce((s, r) => s + r.wins, 0);
+
+  if (hasTeamHere) {
+    // Player's team is already at this game (won through feeder games).
+    // It can win this game (+1) and advance. Child subtrees may contain
+    // other player teams earning wins in lower rounds.
+    return { wins: totalChildWins + 1, canAdvance: true };
+  }
+
+  // Can a team from a child subtree advance to win this game?
+  const anyAdvances = results.some(r => r.canAdvance);
+  if (anyAdvances) {
+    // One team wins this game (+1). If BOTH sides have advancing teams,
+    // they collide here — both earn their subtree wins, but only one
+    // wins this game and continues.
+    return { wins: totalChildWins + 1, canAdvance: true };
+  }
+
+  return { wins: totalChildWins, canAdvance: false };
 }
 
 export function computeAllScores(data: BracketData): PlayerScore[] {
@@ -30,7 +137,6 @@ export function computeAllScores(data: BracketData): PlayerScore[] {
 
   for (const game of data.games) {
     if (game.teams.length < 2) continue;
-    // Skip First Four (play-in) games — only count the main 64-team bracket
     if (game.sectionId === 1) continue;
     const [t0, t1] = game.teams;
     if (t0.seoname) ensureRecord(t0.seoname, t0.nameShort, t0.seed);
@@ -49,16 +155,19 @@ export function computeAllScores(data: BracketData): PlayerScore[] {
     }
   }
 
+  // Build bracket tree for bracket-aware max potential
+  const { children, root, teamPositions } = buildBracketTree(data.games);
+  const hasBracketTree = root > 0 && children.size > 0;
+
   // Compute per-player scores
   return players.map(player => {
     let points = 0;
-    let maxPotential = 0;
     let teamsAlive = 0;
     let teamsEliminated = 0;
     const teamResults: TeamResult[] = [];
+    const aliveTeamSeonames: string[] = [];
 
     for (const teamName of player.teams) {
-      // Find the record by matching draft name
       let record: TeamRecord | undefined;
       for (const r of records.values()) {
         if (r.draftName === teamName) {
@@ -69,12 +178,14 @@ export function computeAllScores(data: BracketData): PlayerScore[] {
 
       if (record) {
         points += record.wins;
-        // Max wins: 6 games in the main bracket (Round of 64 through Championship)
+        if (record.alive) {
+          teamsAlive++;
+          aliveTeamSeonames.push(record.seoname);
+        }
+        if (record.eliminated) teamsEliminated++;
+
         const maxTotalWins = 6;
         const remainingWins = record.eliminated ? 0 : Math.max(0, maxTotalWins - record.wins);
-        maxPotential += record.wins + remainingWins;
-        if (record.alive) teamsAlive++;
-        if (record.eliminated) teamsEliminated++;
         teamResults.push({
           teamName,
           seoname: record.seoname,
@@ -86,7 +197,6 @@ export function computeAllScores(data: BracketData): PlayerScore[] {
           maxRemainingWins: remainingWins,
         });
       } else {
-        // Team not found in bracket data (might not have made tournament)
         teamResults.push({
           teamName,
           seoname: '',
@@ -99,6 +209,23 @@ export function computeAllScores(data: BracketData): PlayerScore[] {
         });
         teamsEliminated++;
       }
+    }
+
+    // Compute max potential using bracket-aware DP if tree is available
+    let maxPotential: number;
+    if (hasBracketTree && aliveTeamSeonames.length > 0) {
+      // Build set of bracket positions where this player has alive teams
+      const playerPositions = new Set<number>();
+      for (const seo of aliveTeamSeonames) {
+        const pos = teamPositions.get(seo);
+        if (pos) playerPositions.add(pos);
+      }
+
+      const futureWins = computeMaxFutureWins(root, children, playerPositions);
+      maxPotential = points + futureWins.wins;
+    } else {
+      // Fallback: naive calculation
+      maxPotential = teamResults.reduce((sum, t) => sum + t.wins + t.maxRemainingWins, 0);
     }
 
     return { player, points, maxPotential, teamsAlive, teamsEliminated, teamResults };
