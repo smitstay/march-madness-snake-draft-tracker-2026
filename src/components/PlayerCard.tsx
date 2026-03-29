@@ -6,9 +6,10 @@ interface PlayerCardProps {
   score: PlayerScore;
   rank: number;
   leaderPoints: number;
+  globalMax: number;
 }
 
-export function PlayerCard({ score, rank, leaderPoints }: PlayerCardProps) {
+export function PlayerCard({ score, rank, leaderPoints, globalMax }: PlayerCardProps) {
   const [expanded, setExpanded] = useState(false);
   const { player, points, maxPotential, teamsAlive, teamsEliminated, teamResults } = score;
   const isMathEliminated = maxPotential < leaderPoints;
@@ -26,9 +27,23 @@ export function PlayerCard({ score, rank, leaderPoints }: PlayerCardProps) {
       {/* Main row */}
       <div className="flex items-center gap-3 px-4 py-3 sm:gap-4 sm:px-5">
         {/* Rank */}
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/[0.06] font-['Anybody'] text-sm font-bold text-white/50">
-          {rank}
-        </div>
+        {rank <= 3 ? (
+          <div
+            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg font-['Anybody'] text-sm font-black ${
+              rank === 1
+                ? 'bg-amber-400/20 text-amber-300 ring-1 ring-amber-400/40'
+                : rank === 2
+                  ? 'bg-slate-300/15 text-slate-300 ring-1 ring-slate-300/30'
+                  : 'bg-amber-700/20 text-amber-600 ring-1 ring-amber-700/30'
+            }`}
+          >
+            {rank === 1 ? '1st' : rank === 2 ? '2nd' : '3rd'}
+          </div>
+        ) : (
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/[0.06] font-['Anybody'] text-sm font-bold text-white/50">
+            {rank}
+          </div>
+        )}
 
         {/* Player name + color */}
         <div className="flex min-w-0 flex-1 items-center gap-2.5">
@@ -60,7 +75,7 @@ export function PlayerCard({ score, rank, leaderPoints }: PlayerCardProps) {
             <span>Max {maxPotential}</span>
           </div>
           <div className="h-1.5 overflow-hidden rounded-full bg-white/[0.06] sm:h-2">
-            <div className="relative h-full rounded-full transition-all duration-700" style={{ width: `${(maxPotential / 48) * 100}%` }}>
+            <div className="relative h-full rounded-full transition-all duration-700" style={{ width: `${(maxPotential / globalMax) * 100}%` }}>
               <div
                 className="absolute inset-y-0 left-0 rounded-full"
                 style={{ width: `${potentialBarWidth}%`, backgroundColor: player.colorHex }}
@@ -106,7 +121,7 @@ export function PlayerCard({ score, rank, leaderPoints }: PlayerCardProps) {
               <span>Max {maxPotential}</span>
             </div>
             <div className="h-2 overflow-hidden rounded-full bg-white/[0.06]">
-              <div className="relative h-full rounded-full" style={{ width: `${(maxPotential / 48) * 100}%` }}>
+              <div className="relative h-full rounded-full" style={{ width: `${(maxPotential / globalMax) * 100}%` }}>
                 <div
                   className="absolute inset-y-0 left-0 rounded-full"
                   style={{ width: `${potentialBarWidth}%`, backgroundColor: player.colorHex }}
