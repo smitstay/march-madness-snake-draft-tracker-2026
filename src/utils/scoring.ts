@@ -55,10 +55,18 @@ function buildBracketTree(games: BracketGame[]) {
     }
   }
 
-  // Map each team to its highest-round appearance (current bracket position)
+  // Map each alive team to its next upcoming game (not yet final).
+  // Teams whose last game is Final (e.g., the champion) have no future games.
+  const gameStateByBracketId = new Map<number, string>();
+  for (const game of games) {
+    if (game.sectionId === 1) continue;
+    gameStateByBracketId.set(game.bracketId, game.gameState);
+  }
+
   const teamPositions = new Map<string, number>();
   for (const game of games) {
     if (game.sectionId === 1) continue;
+    if (game.gameState === 'F') continue; // skip finished games
     for (const team of game.teams) {
       if (!team.seoname) continue;
       const curr = teamPositions.get(team.seoname);
