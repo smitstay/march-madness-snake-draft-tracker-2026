@@ -5,6 +5,7 @@ import { Layout } from './components/Layout';
 import { Scoreboard } from './components/Scoreboard';
 import { Bracket } from './components/Bracket';
 import { TeamsView } from './components/TeamsView';
+import { DraftRoom } from './components/draft/DraftRoom';
 
 function LoadingScreen() {
   return (
@@ -89,6 +90,7 @@ export default function App() {
       {activeTab === 'scoreboard' && <Scoreboard scores={scores} />}
       {activeTab === 'bracket' && bracket && <Bracket bracket={bracket} />}
       {activeTab === 'teams' && <TeamsView scores={scores} />}
+      {activeTab === 'draft' && <DraftRoom />}
     </Layout>
   );
 }
