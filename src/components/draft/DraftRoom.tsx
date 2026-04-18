@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useDraft } from '../../hooks/useDraft';
 import { slotForPick, upcomingPickers } from '../../utils/draftOrder';
 import { draftTeams } from '../../data/draftTeams';
@@ -21,10 +22,26 @@ interface ConfirmDialogProps {
 }
 
 function ConfirmDialog({ title, message, confirmLabel, danger, onConfirm, onCancel }: ConfirmDialogProps) {
-  return (
+  // Lock body scroll while the dialog is open so mobile can't scroll behind it.
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onCancel(); };
+    window.addEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [onCancel]);
+
+  // Portal to body so ancestor transforms (e.g. the DraftRoom fade animation)
+  // don't turn the viewport-fixed dialog into a containing-block descendant.
+  return createPortal(
     <div
       className="fixed inset-0 z-[100] flex items-center justify-center px-4"
       onClick={onCancel}
+      role="dialog"
+      aria-modal="true"
     >
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
       <div
@@ -54,7 +71,8 @@ function ConfirmDialog({ title, message, confirmLabel, danger, onConfirm, onCanc
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 
