@@ -1,0 +1,88 @@
+import type { DraftTeam } from '../types';
+
+// Placeholder 2027 NCAA tournament field. Swap with real bracket when announced.
+// 68-team field: 4 regions × 16 seeds + 4 First Four play-in notes folded into 16-seeds.
+export const draftTeams: DraftTeam[] = [
+  // EAST
+  { id: 'e-1', name: 'Duke', seed: 1, region: 'East' },
+  { id: 'e-2', name: 'Kentucky', seed: 2, region: 'East' },
+  { id: 'e-3', name: 'Baylor', seed: 3, region: 'East' },
+  { id: 'e-4', name: 'Creighton', seed: 4, region: 'East' },
+  { id: 'e-5', name: 'Marquette', seed: 5, region: 'East' },
+  { id: 'e-6', name: 'Mississippi State', seed: 6, region: 'East' },
+  { id: 'e-7', name: 'Oklahoma', seed: 7, region: 'East' },
+  { id: 'e-8', name: 'Dayton', seed: 8, region: 'East' },
+  { id: 'e-9', name: 'Nevada', seed: 9, region: 'East' },
+  { id: 'e-10', name: 'Boise State', seed: 10, region: 'East' },
+  { id: 'e-11', name: 'Drake', seed: 11, region: 'East' },
+  { id: 'e-12', name: 'Grand Canyon', seed: 12, region: 'East' },
+  { id: 'e-13', name: 'Vermont', seed: 13, region: 'East' },
+  { id: 'e-14', name: 'Colgate', seed: 14, region: 'East' },
+  { id: 'e-15', name: 'Longwood', seed: 15, region: 'East' },
+  { id: 'e-16', name: 'Stetson', seed: 16, region: 'East' },
+
+  // WEST
+  { id: 'w-1', name: 'Houston', seed: 1, region: 'West' },
+  { id: 'w-2', name: 'Arizona', seed: 2, region: 'West' },
+  { id: 'w-3', name: 'Iowa State', seed: 3, region: 'West' },
+  { id: 'w-4', name: 'Kansas', seed: 4, region: 'West' },
+  { id: 'w-5', name: 'Saint Mary\u2019s', seed: 5, region: 'West' },
+  { id: 'w-6', name: 'BYU', seed: 6, region: 'West' },
+  { id: 'w-7', name: 'Texas', seed: 7, region: 'West' },
+  { id: 'w-8', name: 'Utah State', seed: 8, region: 'West' },
+  { id: 'w-9', name: 'Colorado', seed: 9, region: 'West' },
+  { id: 'w-10', name: 'Nebraska', seed: 10, region: 'West' },
+  { id: 'w-11', name: 'New Mexico', seed: 11, region: 'West' },
+  { id: 'w-12', name: 'McNeese', seed: 12, region: 'West' },
+  { id: 'w-13', name: 'Samford', seed: 13, region: 'West' },
+  { id: 'w-14', name: 'Oakland', seed: 14, region: 'West' },
+  { id: 'w-15', name: 'Saint Peter\u2019s', seed: 15, region: 'West' },
+  { id: 'w-16', name: 'Wagner', seed: 16, region: 'West' },
+
+  // SOUTH
+  { id: 's-1', name: 'Auburn', seed: 1, region: 'South' },
+  { id: 's-2', name: 'Tennessee', seed: 2, region: 'South' },
+  { id: 's-3', name: 'Alabama', seed: 3, region: 'South' },
+  { id: 's-4', name: 'Florida', seed: 4, region: 'South' },
+  { id: 's-5', name: 'Illinois', seed: 5, region: 'South' },
+  { id: 's-6', name: 'Texas A&M', seed: 6, region: 'South' },
+  { id: 's-7', name: 'Gonzaga', seed: 7, region: 'South' },
+  { id: 's-8', name: 'Mississippi', seed: 8, region: 'South' },
+  { id: 's-9', name: 'Louisville', seed: 9, region: 'South' },
+  { id: 's-10', name: 'NC State', seed: 10, region: 'South' },
+  { id: 's-11', name: 'Ohio State', seed: 11, region: 'South' },
+  { id: 's-12', name: 'UAB', seed: 12, region: 'South' },
+  { id: 's-13', name: 'Yale', seed: 13, region: 'South' },
+  { id: 's-14', name: 'Morehead State', seed: 14, region: 'South' },
+  { id: 's-15', name: 'Northern Colorado', seed: 15, region: 'South' },
+  { id: 's-16', name: 'Mount St. Mary\u2019s', seed: 16, region: 'South' },
+
+  // MIDWEST
+  { id: 'm-1', name: 'Purdue', seed: 1, region: 'Midwest' },
+  { id: 'm-2', name: 'UConn', seed: 2, region: 'Midwest' },
+  { id: 'm-3', name: 'Michigan State', seed: 3, region: 'Midwest' },
+  { id: 'm-4', name: 'North Carolina', seed: 4, region: 'Midwest' },
+  { id: 'm-5', name: 'Wisconsin', seed: 5, region: 'Midwest' },
+  { id: 'm-6', name: 'UCLA', seed: 6, region: 'Midwest' },
+  { id: 'm-7', name: 'Michigan', seed: 7, region: 'Midwest' },
+  { id: 'm-8', name: 'Virginia', seed: 8, region: 'Midwest' },
+  { id: 'm-9', name: 'Xavier', seed: 9, region: 'Midwest' },
+  { id: 'm-10', name: 'Memphis', seed: 10, region: 'Midwest' },
+  { id: 'm-11', name: 'VCU', seed: 11, region: 'Midwest' },
+  { id: 'm-12', name: 'UC Irvine', seed: 12, region: 'Midwest' },
+  { id: 'm-13', name: 'Akron', seed: 13, region: 'Midwest' },
+  { id: 'm-14', name: 'Lipscomb', seed: 14, region: 'Midwest' },
+  { id: 'm-15', name: 'South Dakota State', seed: 15, region: 'Midwest' },
+  { id: 'm-16', name: 'Norfolk State', seed: 16, region: 'Midwest' },
+];
+
+export const defaultDraftPlayers = [
+  { name: 'Jack', colorHex: '#ef4444' },
+  { name: 'Ben', colorHex: '#3b82f6' },
+  { name: 'Connor', colorHex: '#10b981' },
+  { name: 'Taylor', colorHex: '#fbbf24' },
+  { name: 'Will', colorHex: '#8b5cf6' },
+  { name: 'Coby', colorHex: '#f97316' },
+  { name: 'Peter', colorHex: '#22d3ee' },
+  { name: 'Chris', colorHex: '#ec4899' },
+];

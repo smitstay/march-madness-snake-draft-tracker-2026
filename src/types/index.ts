@@ -69,4 +69,35 @@ export interface TeamResult {
   maxRemainingWins: number;
 }
 
-export type TabType = 'scoreboard' | 'bracket' | 'teams';
+export type TabType = 'scoreboard' | 'bracket' | 'teams' | 'draft';
+
+export type Region = 'East' | 'West' | 'South' | 'Midwest';
+
+export interface DraftTeam {
+  id: string;
+  name: string;
+  seed: number;
+  region: Region;
+  record?: string;
+}
+
+export interface DraftPlayer {
+  name: string;
+  colorHex: string;
+}
+
+export interface DraftPick {
+  pickNumber: number;
+  round: number;
+  pickInRound: number;
+  playerName: string;
+  team: DraftTeam;
+  timestamp: number;
+}
+
+export interface DraftState {
+  players: DraftPlayer[];
+  picks: DraftPick[];
+  totalPicks: number;
+  teamsPerPlayer: number;
+}
