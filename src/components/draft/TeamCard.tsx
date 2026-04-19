@@ -1,4 +1,5 @@
 import type { DraftTeam, DraftPlayer } from '../../types';
+import { upsetInfo } from '../../advisor';
 
 interface TeamCardProps {
   team: DraftTeam;
@@ -23,6 +24,7 @@ function seedTier(seed: number): 'top' | 'mid' | 'low' {
 
 export function TeamCard({ team, onPick, pickerColor, picker, disabled }: TeamCardProps) {
   const tier = seedTier(team.seed);
+  const upset = upsetInfo(team);
 
   return (
     <button
@@ -54,8 +56,18 @@ export function TeamCard({ team, onPick, pickerColor, picker, disabled }: TeamCa
       </div>
 
       <div className="relative min-w-0 flex-1">
-        <div className="truncate font-['Anybody'] text-sm font-bold tracking-wide text-white">
-          {team.name}
+        <div className="flex items-center gap-1.5">
+          <span className="truncate font-['Anybody'] text-sm font-bold tracking-wide text-white">
+            {team.name}
+          </span>
+          {upset && (
+            <span
+              className="shrink-0 rounded bg-orange-500/15 px-1 py-0.5 font-['DM_Sans'] text-[8px] font-bold uppercase tracking-wider text-orange-300"
+              title={`Classic ${upset.label} slot — historically ${(upset.rate * 100).toFixed(0)}% R1 win rate`}
+            >
+              Upset {(upset.rate * 100).toFixed(0)}%
+            </span>
+          )}
         </div>
         <div className="mt-0.5 flex items-center gap-1.5 font-['DM_Sans'] text-[10px] font-semibold uppercase tracking-wider">
           <span className={regionColor[team.region] ?? 'text-white/50'}>
