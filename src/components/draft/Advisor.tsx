@@ -2,11 +2,11 @@ import { useMemo, useState } from 'react';
 import type { DraftPlayer, DraftTeam } from '../../types';
 import {
   ALGORITHMS,
-  computeAgreement,
+  computeAgreementScore,
   runAll,
   upsetInfo,
   type AlgorithmResult,
-} from '../../utils/advisor';
+} from '../../advisor';
 
 interface AdvisorProps {
   available: DraftTeam[];
@@ -34,7 +34,7 @@ export function Advisor({ available, ownedByCurrentPicker, picker, onPick }: Adv
   );
 
   const agreement = useMemo(
-    () => computeAgreement(activeResults, TOP_N),
+    () => computeAgreementScore(activeResults, TOP_N),
     [activeResults],
   );
 

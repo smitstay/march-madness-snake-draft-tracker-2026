@@ -1,5 +1,5 @@
 import type { DraftTeam, DraftPlayer } from '../../types';
-import { upsetInfo } from '../../utils/advisor';
+import { upsetInfo } from '../../advisor';
 
 interface TeamCardProps {
   team: DraftTeam;
