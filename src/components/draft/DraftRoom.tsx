@@ -9,8 +9,9 @@ import { AvailableTeams } from './AvailableTeams';
 import { DraftBoard } from './DraftBoard';
 import { RosterPanel } from './RosterPanel';
 import { DraftComplete } from './DraftComplete';
+import { Advisor } from './Advisor';
 
-type SidePanel = 'board' | 'rosters';
+type SidePanel = 'advisor' | 'board' | 'rosters';
 
 interface ConfirmDialogProps {
   title: string;
@@ -90,7 +91,7 @@ export function DraftRoom() {
     reset,
   } = useDraft();
 
-  const [panel, setPanel] = useState<SidePanel>('board');
+  const [panel, setPanel] = useState<SidePanel>('advisor');
   const [confirmUndo, setConfirmUndo] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
 
@@ -171,7 +172,7 @@ export function DraftRoom() {
 
           <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4 sm:p-5">
             <div className="mb-3 flex gap-1">
-              {(['board', 'rosters'] as const).map(p => (
+              {(['advisor', 'board', 'rosters'] as const).map(p => (
                 <button
                   key={p}
                   onClick={() => setPanel(p)}
@@ -181,11 +182,22 @@ export function DraftRoom() {
                       : 'text-white/40 hover:text-white/70'
                   }`}
                 >
-                  {p === 'board' ? 'Board' : 'Rosters'}
+                  {p === 'advisor' ? 'Advisor' : p === 'board' ? 'Board' : 'Rosters'}
                 </button>
               ))}
             </div>
-            {panel === 'board' ? (
+            {panel === 'advisor' ? (
+              <Advisor
+                available={availableTeams}
+                ownedByCurrentPicker={
+                  currentPicker
+                    ? (rosters[currentPicker.name] ?? []).map(p => p.team)
+                    : []
+                }
+                picker={currentPicker}
+                onPick={makePick}
+              />
+            ) : panel === 'board' ? (
               <DraftBoard picks={state.picks} players={state.players} />
             ) : (
               <RosterPanel
