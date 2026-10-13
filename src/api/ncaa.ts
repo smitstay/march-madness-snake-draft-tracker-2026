@@ -16,7 +16,7 @@ function decodeHtml(s: string): string {
   return s.replace(/&#174;/g, '®').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
 }
 
-function normalizeTeam(raw: any): BracketTeam {
+function normalizeTeam(raw: Partial<BracketTeam> | null): BracketTeam {
   return {
     seoname: raw?.seoname || '',
     nameShort: raw?.nameShort || '',
@@ -29,7 +29,7 @@ function normalizeTeam(raw: any): BracketTeam {
   };
 }
 
-function normalizeGame(raw: any): BracketGame {
+function normalizeGame(raw: Omit<BracketGame, 'teams'> & { teams?: Partial<BracketTeam>[] }): BracketGame {
   return {
     contestId: raw.contestId,
     bracketId: raw.bracketId,
@@ -44,7 +44,7 @@ function normalizeGame(raw: any): BracketGame {
   };
 }
 
-function normalizeRegion(raw: any): BracketRegion {
+function normalizeRegion(raw: Partial<BracketRegion> & { sectionId: number; title?: string }): BracketRegion {
   return {
     sectionId: raw.sectionId,
     name: (raw.title || '').trim(),
@@ -53,7 +53,7 @@ function normalizeRegion(raw: any): BracketRegion {
   };
 }
 
-function normalizeRound(raw: any): BracketRound {
+function normalizeRound(raw: Partial<BracketRound> & { roundNumber: number }): BracketRound {
   return {
     roundNumber: raw.roundNumber,
     title: decodeHtml(raw.title || ''),
@@ -95,7 +95,9 @@ export function cacheBracket(data: BracketData) {
   try {
     localStorage.setItem(CACHE_KEY, JSON.stringify(data));
     localStorage.setItem(CACHE_TS_KEY, Date.now().toString());
-  } catch {}
+  } catch {
+    // Browser caching is optional when storage is unavailable.
+  }
 }
 
 export function hasLiveGames(data: BracketData): boolean {

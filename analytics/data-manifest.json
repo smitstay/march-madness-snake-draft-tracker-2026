@@ -1,0 +1,32 @@
+{
+  "MTeams.csv": {
+    "url": "https://huggingface.co/Jensen-holm/Nigl/resolve/cc53f5ea4242c351c8781a62b4f5a3f3188ad89a/data/MTeams.csv",
+    "sha256": "3e7e6682e54d14368b9b1ff565da0670e90cef6a51614f8e351b3e16f2b2b08d",
+    "rows": 378,
+    "lastSeason": null
+  },
+  "MRegularSeasonCompactResults.csv": {
+    "url": "https://huggingface.co/Jensen-holm/Nigl/resolve/cc53f5ea4242c351c8781a62b4f5a3f3188ad89a/data/MRegularSeasonCompactResults.csv",
+    "sha256": "e1bec90be89b570d883202025fe09c0d3e15fe1d3ecc3e80cdfa393438260fcd",
+    "rows": 185865,
+    "lastSeason": 2024
+  },
+  "MNCAATourneyCompactResults.csv": {
+    "url": "https://huggingface.co/Jensen-holm/Nigl/resolve/cc53f5ea4242c351c8781a62b4f5a3f3188ad89a/data/MNCAATourneyCompactResults.csv",
+    "sha256": "436aa7a38a2f215cecd63b65cb76f48c70a48c87ff76df4f9658ab6ecfc92bc2",
+    "rows": 2451,
+    "lastSeason": 2023
+  },
+  "MNCAATourneySeeds.csv": {
+    "url": "https://huggingface.co/Jensen-holm/Nigl/resolve/cc53f5ea4242c351c8781a62b4f5a3f3188ad89a/data/MNCAATourneySeeds.csv",
+    "sha256": "e1bbe41fa1eb4da6ebfa2a8eb54667138969b3367c049ab01b705799bcb55d8b",
+    "rows": 2490,
+    "lastSeason": 2023
+  },
+  "MNCAATourneySlots.csv": {
+    "url": "https://huggingface.co/Jensen-holm/Nigl/resolve/cc53f5ea4242c351c8781a62b4f5a3f3188ad89a/data/MNCAATourneySlots.csv",
+    "sha256": "8f62f8199a61548099502cdbd50ad115772d5fce09a96bda85e77adb7d9297a3",
+    "rows": 2452,
+    "lastSeason": 2023
+  }
+}

@@ -1,0 +1,29 @@
+name: Validate app and private draft lab
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+      - run: npm ci
+      - run: pip install -r analytics/requirements.txt
+      - run: npm run lint
+      - run: npm run build && npm run build:edge
+      - run: npm run test:edge
+      - run: python -m unittest discover -s analytics -p 'test_*.py'
+      - run: sudo apt-get update && sudo apt-get install -y nginx
+      - run: npx playwright install --with-deps chromium
+      - run: python scripts/test_security.py --browser
+      - run: docker build --tag ncaa-edge:ci .
