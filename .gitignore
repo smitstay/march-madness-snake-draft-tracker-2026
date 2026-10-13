@@ -34,3 +34,11 @@ src/data/bracket-snapshot.json
 
 # Vite scaffold leftover
 public/icons.svg
+
+# Reproducible analysis inputs and local authentication
+analytics/data/raw/
+analytics/output/
+.venv/
+dist-edge/
+*.htpasswd
+__pycache__/

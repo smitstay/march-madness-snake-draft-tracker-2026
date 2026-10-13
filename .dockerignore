@@ -5,3 +5,11 @@ dist
 .playwright-cli
 *.png
 src/data/bracket-snapshot.json
+dist-edge
+analytics/data/raw
+analytics/output
+.venv
+__pycache__
+*.htpasswd
+.env
+.env.*
